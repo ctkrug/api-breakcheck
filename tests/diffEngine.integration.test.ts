@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { diffSpecs } from "../src/diff/diffEngine";
+import type { DiffNode } from "../src/diff/types";
 
 const spec = (paths: Record<string, unknown>) => ({
   openapi: "3.0.0",
@@ -8,9 +9,8 @@ const spec = (paths: Record<string, unknown>) => ({
 });
 
 /** Depth-first flatten of every node, for locating a leaf by a path fragment. */
-function flatten(node: { children: unknown[] } & Record<string, unknown>): Record<string, unknown>[] {
-  const kids = (node.children as Record<string, unknown>[]) ?? [];
-  return [node, ...kids.flatMap((c) => flatten(c as never))];
+function flatten(node: DiffNode): DiffNode[] {
+  return [node, ...node.children.flatMap(flatten)];
 }
 
 describe("diffSpecs — operation level (story 2.1)", () => {
