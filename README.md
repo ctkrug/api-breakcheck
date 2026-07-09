@@ -1,5 +1,7 @@
 # API Breakcheck
 
+[![CI](https://github.com/ctkrug/api-breakcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/api-breakcheck/actions/workflows/ci.yml)
+
 Drop in two versions of an OpenAPI spec, get an instant red/green diff tree that marks every
 change **breaking** or **safe** — with a one-line reason for each. No config, no CI pipeline,
 no install.
