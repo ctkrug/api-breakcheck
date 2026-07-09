@@ -79,7 +79,7 @@ export function diffSchema(oldSchema: Schema, newSchema: Schema, ctx: SchemaCont
         : `\`${ctx.label}\` gained an enum constraint${detail}; previously any value was allowed.`,
       children: [],
     });
-  } else if (Array.isArray(newSchema.enum) && !arraysEqual(oldSchema.enum, newSchema.enum)) {
+  } else if (hasAddedEnumValues(oldSchema, newSchema)) {
     nodes.push({
       path: `${ctx.path}#enum`,
       label: ctx.label,
@@ -143,11 +143,13 @@ export function diffSchema(oldSchema: Schema, newSchema: Schema, ctx: SchemaCont
   return nodes;
 }
 
-function arraysEqual(a: unknown, b: unknown): boolean {
-  if (!Array.isArray(a) || !Array.isArray(b)) return a === b;
-  if (a.length !== b.length) return false;
-  const bs = b.map((v) => JSON.stringify(v));
-  return a.every((v, i) => JSON.stringify(v) === bs[i]);
+/** True only when `new` introduces enum values absent from `old` (ignores reordering). */
+function hasAddedEnumValues(oldSchema: Schema, newSchema: Schema): boolean {
+  if (!Array.isArray(newSchema.enum)) return false;
+  const oldValues = new Set(
+    (Array.isArray(oldSchema.enum) ? oldSchema.enum : []).map((v) => JSON.stringify(v)),
+  );
+  return newSchema.enum.some((v) => !oldValues.has(JSON.stringify(v)));
 }
 
 function requiredTransition(

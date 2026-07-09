@@ -108,6 +108,24 @@ describe("diffSchema — constraint changes (both directions)", () => {
     expect(nodes.find((n) => n.category === "format")?.severity).toBe("breaking");
   });
 
+  it("flags an added enum value as a safe change", () => {
+    const nodes = run(
+      { type: "object", properties: { s: { enum: ["a", "b"] } } },
+      { type: "object", properties: { s: { enum: ["a", "b", "c"] } } },
+      "request",
+    );
+    expect(nodes.find((n) => n.category === "enum")?.severity).toBe("safe");
+  });
+
+  it("treats a reordered enum with the same values as no change", () => {
+    const nodes = run(
+      { type: "object", properties: { s: { enum: ["a", "b", "c"] } } },
+      { type: "object", properties: { s: { enum: ["c", "a", "b"] } } },
+      "request",
+    );
+    expect(nodes.filter((n) => n.category === "enum")).toEqual([]);
+  });
+
   it("reports no nodes for identical schemas", () => {
     const schema = { type: "object", properties: { a: { type: "string" } }, required: ["a"] };
     expect(run(schema, { ...schema }, "request")).toEqual([]);
