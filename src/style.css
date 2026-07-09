@@ -1,0 +1,11 @@
+/* Placeholder styling — full visual direction lands per docs/DESIGN.md during build. */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+main {
+  max-width: 40rem;
+  margin: 4rem auto;
+  padding: 0 1.5rem;
+}
