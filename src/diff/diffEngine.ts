@@ -52,10 +52,7 @@ export function diffSpecs(oldSpec: OpenApiDocument, newSpec: OpenApiDocument): D
       path: "/paths",
       label: "paths",
       severity: breakingCount > 0 ? "breaking" : "safe",
-      reason:
-        breakingCount > 0
-          ? `${breakingCount} path(s) removed`
-          : "No paths were removed",
+      reason: breakingCount > 0 ? `${breakingCount} path(s) removed` : "No paths were removed",
       children,
     },
     breakingCount,

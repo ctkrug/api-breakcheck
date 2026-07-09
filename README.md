@@ -9,7 +9,7 @@ no install.
 Most "OpenAPI diff" tooling lives inside a CI step: you write a config file, wire up a GitHub
 Action, and wait for a pipeline run to tell you what changed. That's the right long-term setup,
 but it's overkill for the moment that actually matters most — the ten seconds before you hit
-"merge" on an API change, when you just want to know *"did I just break someone?"*
+"merge" on an API change, when you just want to know _"did I just break someone?"_
 
 API Breakcheck skips all of that. Paste your old spec, paste your new spec, and get the answer
 immediately, in the browser, with nothing installed and nothing configured. It's the pre-release

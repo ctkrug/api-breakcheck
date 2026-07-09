@@ -3,12 +3,12 @@
 ## The problem
 
 You're about to merge an API change. Somewhere between "I edited the OpenAPI spec" and
-"this shipped," you'd like to know: *did I just break a client?* The honest answer requires
+"this shipped," you'd like to know: _did I just break a client?_ The honest answer requires
 understanding OpenAPI compatibility semantics — removed fields, tightened validation, changed
 types, `$ref` chains — not just eyeballing a text diff of two YAML files, which buries a single
 one-line breaking change under hundreds of lines of cosmetic reordering noise.
 
-The tools that *can* answer this properly (`oasdiff`, `openapi-diff`, etc.) are built for CI:
+The tools that _can_ answer this properly (`oasdiff`, `openapi-diff`, etc.) are built for CI:
 install a binary or action, write a config file, wire it into a pipeline, wait for a run. That's
 the right tool for enforcement, but it's the wrong tool for the moment right before you open the
 PR, when you just want a fast, honest gut-check with zero setup.
@@ -23,7 +23,7 @@ Also useful for reviewers: paste the PR's before/after spec and see the same tre
 
 Paste (or drop) two OpenAPI documents. Get a tree, not a wall of text: every path, operation, and
 schema change is a node, colored red (breaking) or green (safe), with one plain-English sentence
-explaining *why*. No config file, no CLI, no account, no server round-trip — the whole comparison
+explaining _why_. No config file, no CLI, no account, no server round-trip — the whole comparison
 runs in the browser tab.
 
 ## Key design decisions

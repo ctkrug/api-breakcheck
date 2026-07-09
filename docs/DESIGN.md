@@ -11,21 +11,21 @@ terminal/glassy-dark treatment.
 
 ## Tokens
 
-| Token | Value | Notes |
-|---|---|---|
-| `--bg` | `#EAF2F6` | pale cyanotype blue, the "blueprint paper" |
-| `--surface-1` | `#F6FAFC` | panel background (spec input, tree container) |
-| `--surface-2` | `#DCE9EF` | recessed / hover surface, nested tree rows |
-| `--text` | `#0B2B3C` | deep blueprint ink |
-| `--text-muted` | `#4C6B79` | secondary labels, path breadcrumbs |
-| `--accent` | `#0F6FA3` | primary accent — links, focus rings, safe-adjacent UI chrome |
-| `--support` | `#C97A2B` | warm drafting-pencil orange, used sparingly for callouts |
-| `--danger` (breaking) | `#C23B3B` | breaking-change red, desaturated enough to sit on cyan paper |
-| `--success` (safe) | `#2E8B57` | safe-change green |
-| `--grid-line` | `rgba(15, 111, 163, 0.14)` | the blueprint grid overlay |
+| Token                 | Value                      | Notes                                                        |
+| --------------------- | -------------------------- | ------------------------------------------------------------ |
+| `--bg`                | `#EAF2F6`                  | pale cyanotype blue, the "blueprint paper"                   |
+| `--surface-1`         | `#F6FAFC`                  | panel background (spec input, tree container)                |
+| `--surface-2`         | `#DCE9EF`                  | recessed / hover surface, nested tree rows                   |
+| `--text`              | `#0B2B3C`                  | deep blueprint ink                                           |
+| `--text-muted`        | `#4C6B79`                  | secondary labels, path breadcrumbs                           |
+| `--accent`            | `#0F6FA3`                  | primary accent — links, focus rings, safe-adjacent UI chrome |
+| `--support`           | `#C97A2B`                  | warm drafting-pencil orange, used sparingly for callouts     |
+| `--danger` (breaking) | `#C23B3B`                  | breaking-change red, desaturated enough to sit on cyan paper |
+| `--success` (safe)    | `#2E8B57`                  | safe-change green                                            |
+| `--grid-line`         | `rgba(15, 111, 163, 0.14)` | the blueprint grid overlay                                   |
 
 **Type pairing:** [IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) for the
-display face (wordmark, headings, and every path/schema token — the tool is *about* text
+display face (wordmark, headings, and every path/schema token — the tool is _about_ text
 diffing, so structural text should look drafted-in-monospace) paired with
 [IBM Plex Sans](https://fonts.google.com/specimen/IBM+Plex+Sans) for body copy and UI labels.
 System fallback stack: `"IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace` and

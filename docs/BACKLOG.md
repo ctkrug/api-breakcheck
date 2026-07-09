@@ -9,7 +9,7 @@ before anything else ships.
 The core loop: paste two specs, see the tree, understand the blast radius. This is the whole
 product; everything else sharpens it.
 
-- [ ] **1.1 Paste-and-diff wow moment** *(the wow moment)*
+- [ ] **1.1 Paste-and-diff wow moment** _(the wow moment)_
   - Pasting a valid OpenAPI JSON/YAML doc into each of the two input panes and clicking
     "Compare" renders a diff tree within 1 second, with zero prior configuration.
   - The tree root shows a breaking-change count and a safe-change count that match the number of
