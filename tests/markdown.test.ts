@@ -42,6 +42,14 @@ describe("toMarkdown", () => {
     const md = toMarkdown(diffSpecs(s, structuredClone(s)));
     expect(md).toContain("No differences found");
     expect(md).not.toContain("Breaking changes");
+    // The synthetic root must not leak in as a phantom "safe change".
+    expect(md).not.toContain("Safe changes");
+    expect(md).not.toMatch(/\d+ safe/);
+  });
+
+  it("excludes the synthetic root from collected leaves when nothing changed", () => {
+    const s = spec({ "/a": { get: {} } });
+    expect(collectLeaves(diffSpecs(s, structuredClone(s)))).toEqual([]);
   });
 
   it("includes a breadcrumb location for nested changes", () => {
