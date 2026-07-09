@@ -131,7 +131,16 @@ function main(root: HTMLElement): void {
     const newParsed = parseAndValidate(newPane);
     if (!oldParsed || !newParsed) return;
 
-    state.result = diffSpecs(oldParsed, newParsed);
+    let result: DiffResult;
+    try {
+      result = diffSpecs(oldParsed, newParsed);
+    } catch {
+      // The engine is defensive, but never let an unforeseen input wedge the UI:
+      // surface a pane-scoped error instead of a blank screen.
+      newPane.showError("Couldn't compare these specs — please check they're valid OpenAPI.");
+      return;
+    }
+    state.result = result;
     state.collapsed = true;
     renderResults();
     io.classList.add("io--collapsed");
