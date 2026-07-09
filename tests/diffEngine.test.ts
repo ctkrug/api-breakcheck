@@ -37,4 +37,25 @@ describe("diffSpecs", () => {
     expect(result.breakingCount).toBe(0);
     expect(result.safeCount).toBe(0);
   });
+
+  it("does not crash on a null path item present in both specs", () => {
+    const spec = { openapi: "3.0.0", paths: { "/x": null } };
+    expect(() => diffSpecs(spec, { ...spec, paths: { "/x": null } })).not.toThrow();
+    const result = diffSpecs(spec, { openapi: "3.0.0", paths: { "/x": null } });
+    expect(result.root.children).toEqual([]);
+  });
+
+  it("treats a path whose only-side value is a null/scalar as add/remove", () => {
+    const withPath = { openapi: "3.0.0", paths: { "/x": null } };
+    const without = { openapi: "3.0.0", paths: {} };
+    expect(diffSpecs(withPath, without).breakingCount).toBe(1); // removed -> breaking
+    expect(diffSpecs(without, withPath).safeCount).toBe(1); // added -> safe
+  });
+
+  it("does not crash when a path item is a scalar string", () => {
+    const a = { openapi: "3.0.0", paths: { "/x": "oops" } };
+    const b = { openapi: "3.0.0", paths: { "/x": { get: {} } } };
+    expect(() => diffSpecs(a, b)).not.toThrow();
+    expect(() => diffSpecs(b, a)).not.toThrow();
+  });
 });
