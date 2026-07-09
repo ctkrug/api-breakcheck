@@ -68,6 +68,15 @@ describe("resolveRefs", () => {
     expect(resolved.target).toEqual({ $ref: "#/components/schemas/DoesNotExist" });
   });
 
+  it("terminates on a genuinely cyclic object (self-referential YAML anchor)", () => {
+    // Mimic what the YAML parser produces for `x: &a { self: *a }` — a real
+    // cycle with no $ref involved, which the `seen` guard must break.
+    const cyclic: Record<string, unknown> = { type: "object" };
+    cyclic.self = cyclic;
+    const doc = { openapi: "3.0.0", x: cyclic } as unknown as Parameters<typeof resolveRefs>[0];
+    expect(() => resolveRefs(doc)).not.toThrow();
+  });
+
   it("resolves a local $ref whose target is a falsy value", () => {
     const doc = {
       components: { schemas: { Zero: 0 } },
