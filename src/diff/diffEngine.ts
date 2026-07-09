@@ -21,7 +21,11 @@ export function diffSpecs(oldSpec: OpenApiDocument, newSpec: OpenApiDocument): D
 
   const children: DiffNode[] = [];
   for (const path of [...pathNames].sort()) {
-    const node = diffPath(path, oldPaths.get(path), newPaths.get(path));
+    const node = diffPath(
+      path,
+      oldPaths.has(path) ? { present: true, value: oldPaths.get(path) } : { present: false },
+      newPaths.has(path) ? { present: true, value: newPaths.get(path) } : { present: false },
+    );
     if (node) children.push(node);
   }
 
@@ -47,9 +51,14 @@ export function diffSpecs(oldSpec: OpenApiDocument, newSpec: OpenApiDocument): D
   };
 }
 
-function diffPath(path: string, oldItem: unknown, newItem: unknown): DiffNode | null {
+/** A path slot: absent from the spec, or present with some (possibly null/scalar) value. */
+type PathSlot = { present: true; value: unknown } | { present: false };
+
+function diffPath(path: string, oldSlot: PathSlot, newSlot: PathSlot): DiffNode | null {
   const basePath = `/paths${path}`;
-  if (oldItem && !newItem) {
+  // Presence is by key membership, not truthiness: a path can be declared with a
+  // null or scalar value (`/x: null`), which must not read as "absent".
+  if (oldSlot.present && !newSlot.present) {
     return leaf(
       basePath,
       path,
@@ -58,12 +67,14 @@ function diffPath(path: string, oldItem: unknown, newItem: unknown): DiffNode | 
       "Path was removed; any client still calling it will fail.",
     );
   }
-  if (!oldItem && newItem) {
+  if (!oldSlot.present && newSlot.present) {
     return leaf(basePath, path, "safe", "path", "Path is new; existing clients are unaffected.");
   }
 
-  const oldOps = oldItem as Record<string, unknown>;
-  const newOps = newItem as Record<string, unknown>;
+  // Both present. A path-item that isn't an object (null/scalar) carries no
+  // operations to compare, so treat it as an empty operation set.
+  const oldOps = asOps(oldSlot.present ? oldSlot.value : undefined);
+  const newOps = asOps(newSlot.present ? newSlot.value : undefined);
   const opNodes: DiffNode[] = [];
   for (const method of METHODS) {
     const before = oldOps[method];
@@ -146,6 +157,11 @@ function leaf(
   reason: string,
 ): DiffNode {
   return { path, label, severity, category, reason, children: [] };
+}
+
+/** Coerces a path-item to an operations record; non-objects become empty. */
+function asOps(item: unknown): Record<string, unknown> {
+  return typeof item === "object" && item !== null ? (item as Record<string, unknown>) : {};
 }
 
 function getPaths(document: OpenApiDocument): Map<string, unknown> {
