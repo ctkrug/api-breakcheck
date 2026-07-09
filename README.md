@@ -35,13 +35,24 @@ gut-check tool, not the enforcement tool.
 - Runs entirely in the browser — no backend, no data leaves your machine, and the whole thing
   can be shared as a static link.
 
-## Planned features
+## Using it
 
-- Shareable-link mode: encode a diff session into the URL so a teammate can open the exact same
-  comparison without re-uploading either spec.
-- Severity filters (show breaking-only, or everything).
-- Export the diff tree as Markdown for pasting into a PR description.
-- Support for OpenAPI 3.0 and 3.1 differences (e.g. nullable handling, webhooks).
+1. Open the app and paste your current spec into the left pane and the proposed spec into the
+   right — or **drop a `.json`/`.yaml` file** onto either pane, or use **Upload file**. In a
+   hurry? Hit **Load example** to compare a sample Pet Store v1 → v2.
+2. Click **Compare** (or press ⌘/Ctrl+Enter). The input bar collapses to a summary strip and the
+   diff tree fills the screen.
+3. Scan the tree: red = breaking, green = safe, each leaf with a one-line reason. Use the
+   **Breaking only** filter to hide the noise, **Share** to copy a link that reproduces the exact
+   comparison, or **Export Markdown** to paste a report into a PR description.
+
+Malformed JSON/YAML or a non-OpenAPI document produces a clear, pane-scoped error — never a blank
+screen or a thrown stack trace.
+
+## Roadmap
+
+- Wider OpenAPI 3.1 coverage (nullable handling, webhooks, `oneOf`/`allOf` composition).
+- Deep-linking to a specific node in a large tree.
 
 ## Stack
 
@@ -54,8 +65,10 @@ gut-check tool, not the enforcement tool.
 
 ## Status
 
-Early scaffold. See [`docs/VISION.md`](docs/VISION.md) for the product vision and
-[`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+Core is functional end to end: paste/upload two specs → semantic diff tree with breaking/safe
+verdicts, `$ref` resolution, breaking-only filter, shareable links, and Markdown export. See
+[`docs/VISION.md`](docs/VISION.md) for the product vision, [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+for the code map, and [`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
 
 ## Development
 
