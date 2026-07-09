@@ -1,11 +1,198 @@
-/* Placeholder styling — full visual direction lands per docs/DESIGN.md during build. */
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
+/* ------------------------------------------------------------------ *
+ * API Breakcheck — blueprint/technical direction (see docs/DESIGN.md).
+ * A pale cyanotype surface with a fine grid, hairline rules, and drafted
+ * monospace structure. Light, precise, engineered — not another dark dev tool.
+ * ------------------------------------------------------------------ */
+
+:root {
+  --bg: #eaf2f6;
+  --surface-1: #f6fafc;
+  --surface-2: #dce9ef;
+  --text: #0b2b3c;
+  --text-muted: #4c6b79;
+  --accent: #0f6fa3;
+  --support: #c97a2b;
+  --danger: #c23b3b;
+  --success: #2e8b57;
+  --grid-line: rgba(15, 111, 163, 0.14);
+  --hairline: rgba(11, 43, 60, 0.18);
+  --flat-shadow: 2px 2px 0 rgba(11, 43, 60, 0.12);
+
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Consolas, monospace;
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+
+  --r-input: 4px;
+  --r-row: 2px;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
 }
 
-main {
-  max-width: 40rem;
-  margin: 4rem auto;
-  padding: 0 1.5rem;
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--text);
+  background-color: var(--bg);
+  /* The blueprint grid: two overlaid line sets, drawn to the page edges. */
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 24px 24px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+code,
+kbd,
+.mono {
+  font-family: var(--mono);
+}
+
+a {
+  color: var(--accent);
+}
+
+/* --- app frame --- */
+
+#app {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--s5) var(--s5) var(--s7);
+  min-height: 100vh;
+}
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: var(--s5);
+}
+
+/* Drafted wordmark: a bracketed monospace lockup, not just the name in a heading. */
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.wordmark .brk {
+  color: var(--accent);
+}
+.wordmark .tick {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--success);
+  border-radius: 2px;
+  transform: translateY(1px);
+}
+.tagline {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  max-width: 60ch;
+}
+
+/* --- panels --- */
+
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-input);
+  box-shadow: var(--flat-shadow);
+}
+
+/* --- buttons --- */
+
+.btn {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--surface-1);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-input);
+  padding: var(--s2) var(--s4);
+  min-height: 40px;
+  cursor: pointer;
+  transition:
+    transform 150ms ease-out,
+    box-shadow 150ms ease-out,
+    background 150ms ease-out;
+  box-shadow: var(--flat-shadow);
+}
+.btn:hover {
+  background: #0d5f8c;
+}
+.btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+.btn--ghost {
+  color: var(--accent);
+  background: var(--surface-1);
+}
+.btn--ghost:hover {
+  background: var(--surface-2);
+}
+
+/* --- utility --- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }
