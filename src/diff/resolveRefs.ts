@@ -7,13 +7,21 @@ import type { OpenApiDocument } from "./types";
  * Circular refs are preserved as-is (not inlined again) so resolution always
  * terminates: a schema that references itself keeps one `$ref` hop rather
  * than being expanded infinitely.
+ *
+ * Refs that can't be resolved locally — external pointers (e.g.
+ * "./models.yaml#/User") and dangling local pointers to a component that
+ * doesn't exist — are left in place as `{ $ref }` rather than throwing. A
+ * spec carrying such refs (extremely common in the wild) still diffs the parts
+ * that do resolve, and identical unresolved pointers compare as equal, so the
+ * tool degrades gracefully instead of wedging the whole compare.
  */
 export function resolveRefs(document: OpenApiDocument): OpenApiDocument {
   const seen = new WeakSet<object>();
 
-  function resolvePointer(pointer: string): unknown {
+  /** Resolves a local pointer; `found` distinguishes "missing" from a falsy target. */
+  function resolvePointer(pointer: string): { found: boolean; value: unknown } {
     if (!pointer.startsWith("#/")) {
-      throw new Error(`Unsupported $ref (only local pointers are supported): ${pointer}`);
+      return { found: false, value: undefined }; // external ref — not resolvable client-side
     }
     const segments = pointer
       .slice(2)
@@ -22,12 +30,12 @@ export function resolveRefs(document: OpenApiDocument): OpenApiDocument {
 
     let node: unknown = document;
     for (const segment of segments) {
-      if (typeof node !== "object" || node === null) {
-        throw new Error(`Cannot resolve $ref "${pointer}": path does not exist`);
+      if (typeof node !== "object" || node === null || !(segment in node)) {
+        return { found: false, value: undefined }; // dangling pointer — target absent
       }
       node = (node as Record<string, unknown>)[segment];
     }
-    return node;
+    return { found: true, value: node };
   }
 
   function walk(node: unknown, activeRefs: ReadonlySet<string>): unknown {
@@ -45,8 +53,12 @@ export function resolveRefs(document: OpenApiDocument): OpenApiDocument {
         // Circular reference: keep the pointer instead of expanding forever.
         return { $ref: pointer };
       }
-      const target = resolvePointer(pointer);
-      return walk(target, new Set([...activeRefs, pointer]));
+      const { found, value } = resolvePointer(pointer);
+      if (!found) {
+        // External or dangling pointer: keep it verbatim so the compare survives.
+        return { $ref: pointer };
+      }
+      return walk(value, new Set([...activeRefs, pointer]));
     }
 
     if (seen.has(obj)) {
