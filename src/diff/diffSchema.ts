@@ -36,7 +36,9 @@ function propertiesOf(schema: Schema): Record<string, Schema> {
 }
 
 function requiredOf(schema: Schema): Set<string> {
-  return new Set(Array.isArray(schema.required) ? schema.required.filter((x) => typeof x === "string") : []);
+  return new Set(
+    Array.isArray(schema.required) ? schema.required.filter((x) => typeof x === "string") : [],
+  );
 }
 
 function fmt(types: Set<string>): string {
@@ -97,10 +99,7 @@ export function diffSchema(oldSchema: Schema, newSchema: Schema, ctx: SchemaCont
       reason: `\`${ctx.label}\` now requires format "${String(newSchema.format)}"; previously any value was accepted.`,
       children: [],
     });
-  } else if (
-    typeof oldSchema.format === "string" &&
-    typeof newSchema.format !== "string"
-  ) {
+  } else if (typeof oldSchema.format === "string" && typeof newSchema.format !== "string") {
     nodes.push({
       path: `${ctx.path}#format`,
       label: ctx.label,
@@ -124,7 +123,9 @@ export function diffSchema(oldSchema: Schema, newSchema: Schema, ctx: SchemaCont
     const inNew = name in newProps;
 
     if (inOld && inNew) {
-      nodes.push(...requiredTransition(name, childPath, oldReq.has(name), newReq.has(name), ctx.direction));
+      nodes.push(
+        ...requiredTransition(name, childPath, oldReq.has(name), newReq.has(name), ctx.direction),
+      );
       nodes.push(
         ...diffSchema(oldProps[name] as Schema, newProps[name] as Schema, {
           path: childPath,
@@ -160,29 +161,78 @@ function requiredTransition(
   const base = { path: `${path}#required`, label: name, category: "schema" as const, children: [] };
   if (direction === "request") {
     return isRequired
-      ? [{ ...base, severity: "breaking", reason: `Request field \`${name}\` is now required; existing clients may not send it.` }]
-      : [{ ...base, severity: "safe", reason: `Request field \`${name}\` is now optional; existing clients are unaffected.` }];
+      ? [
+          {
+            ...base,
+            severity: "breaking",
+            reason: `Request field \`${name}\` is now required; existing clients may not send it.`,
+          },
+        ]
+      : [
+          {
+            ...base,
+            severity: "safe",
+            reason: `Request field \`${name}\` is now optional; existing clients are unaffected.`,
+          },
+        ];
   }
   // response
   return isRequired
-    ? [{ ...base, severity: "safe", reason: `Response field \`${name}\` is now always present; existing clients are unaffected.` }]
-    : [{ ...base, severity: "breaking", reason: `Response field \`${name}\` is no longer guaranteed; clients relying on it may break.` }];
+    ? [
+        {
+          ...base,
+          severity: "safe",
+          reason: `Response field \`${name}\` is now always present; existing clients are unaffected.`,
+        },
+      ]
+    : [
+        {
+          ...base,
+          severity: "breaking",
+          reason: `Response field \`${name}\` is no longer guaranteed; clients relying on it may break.`,
+        },
+      ];
 }
 
 function fieldRemoved(name: string, path: string, direction: Direction): DiffNode {
   const base = { path, label: name, category: "schema" as const, children: [] };
   if (direction === "response") {
-    return { ...base, severity: "breaking", reason: `Response field \`${name}\` was removed; clients relying on it will break.` };
+    return {
+      ...base,
+      severity: "breaking",
+      reason: `Response field \`${name}\` was removed; clients relying on it will break.`,
+    };
   }
-  return { ...base, severity: "safe", reason: `Request field \`${name}\` was removed; existing clients are unaffected.` };
+  return {
+    ...base,
+    severity: "safe",
+    reason: `Request field \`${name}\` was removed; existing clients are unaffected.`,
+  };
 }
 
-function fieldAdded(name: string, path: string, isRequired: boolean, direction: Direction): DiffNode {
+function fieldAdded(
+  name: string,
+  path: string,
+  isRequired: boolean,
+  direction: Direction,
+): DiffNode {
   const base = { path, label: name, category: "schema" as const, children: [] };
   if (direction === "request") {
     return isRequired
-      ? { ...base, severity: "breaking", reason: `New required request field \`${name}\`; existing clients do not send it.` }
-      : { ...base, severity: "safe", reason: `New optional request field \`${name}\`; existing clients are unaffected.` };
+      ? {
+          ...base,
+          severity: "breaking",
+          reason: `New required request field \`${name}\`; existing clients do not send it.`,
+        }
+      : {
+          ...base,
+          severity: "safe",
+          reason: `New optional request field \`${name}\`; existing clients are unaffected.`,
+        };
   }
-  return { ...base, severity: "safe", reason: `New response field \`${name}\`; existing clients ignore unknown fields.` };
+  return {
+    ...base,
+    severity: "safe",
+    reason: `New response field \`${name}\`; existing clients ignore unknown fields.`,
+  };
 }

@@ -23,7 +23,8 @@ function group(path: string, label: string, children: DiffNode[]): DiffNode | nu
     label,
     category: "operation",
     severity,
-    reason: breaking > 0 ? `${breaking} breaking change(s) here` : "changes here are backward-compatible",
+    reason:
+      breaking > 0 ? `${breaking} breaking change(s) here` : "changes here are backward-compatible",
     children,
   };
 }
@@ -71,18 +72,60 @@ function diffParameters(oldOp: Operation, newOp: Operation, basePath: string): D
 
     if (before && after) {
       if (!before.required && after.required) {
-        nodes.push(mk(`${path}#required`, after.name, "breaking", "parameter", `Parameter \`${after.name}\` (${after.in}) is now required; existing clients omit it.`));
+        nodes.push(
+          mk(
+            `${path}#required`,
+            after.name,
+            "breaking",
+            "parameter",
+            `Parameter \`${after.name}\` (${after.in}) is now required; existing clients omit it.`,
+          ),
+        );
       } else if (before.required && !after.required) {
-        nodes.push(mk(`${path}#required`, after.name, "safe", "parameter", `Parameter \`${after.name}\` (${after.in}) is now optional; existing clients are unaffected.`));
+        nodes.push(
+          mk(
+            `${path}#required`,
+            after.name,
+            "safe",
+            "parameter",
+            `Parameter \`${after.name}\` (${after.in}) is now optional; existing clients are unaffected.`,
+          ),
+        );
       }
-      nodes.push(...diffSchema(before.schema, after.schema, { path, label: after.name, direction: "request" }));
+      nodes.push(
+        ...diffSchema(before.schema, after.schema, {
+          path,
+          label: after.name,
+          direction: "request",
+        }),
+      );
     } else if (before && !after) {
-      nodes.push(mk(path, before.name, "safe", "parameter", `Parameter \`${before.name}\` (${before.in}) was removed; existing clients are unaffected.`));
+      nodes.push(
+        mk(
+          path,
+          before.name,
+          "safe",
+          "parameter",
+          `Parameter \`${before.name}\` (${before.in}) was removed; existing clients are unaffected.`,
+        ),
+      );
     } else if (after) {
       nodes.push(
         after.required
-          ? mk(path, after.name, "breaking", "parameter", `New required ${after.in} parameter \`${after.name}\`; existing clients do not send it.`)
-          : mk(path, after.name, "safe", "parameter", `New optional ${after.in} parameter \`${after.name}\`; existing clients are unaffected.`),
+          ? mk(
+              path,
+              after.name,
+              "breaking",
+              "parameter",
+              `New required ${after.in} parameter \`${after.name}\`; existing clients do not send it.`,
+            )
+          : mk(
+              path,
+              after.name,
+              "safe",
+              "parameter",
+              `New optional ${after.in} parameter \`${after.name}\`; existing clients are unaffected.`,
+            ),
       );
     }
   }
@@ -108,11 +151,17 @@ function diffRequestBody(oldOp: Operation, newOp: Operation, basePath: string): 
   const before = jsonSchema(oldOp.requestBody);
   const after = jsonSchema(newOp.requestBody);
   if (!before || !after) return [];
-  return diffSchema(before, after, { path: `${basePath}/requestBody`, label: "requestBody", direction: "request" });
+  return diffSchema(before, after, {
+    path: `${basePath}/requestBody`,
+    label: "requestBody",
+    direction: "request",
+  });
 }
 
 function responsesOf(op: Operation): Record<string, unknown> {
-  return typeof op.responses === "object" && op.responses !== null ? (op.responses as Record<string, unknown>) : {};
+  return typeof op.responses === "object" && op.responses !== null
+    ? (op.responses as Record<string, unknown>)
+    : {};
 }
 
 function diffResponses(oldOp: Operation, newOp: Operation, basePath: string): DiffNode[] {
@@ -124,7 +173,13 @@ function diffResponses(oldOp: Operation, newOp: Operation, basePath: string): Di
     const before = jsonSchema(oldResp[code]);
     const after = jsonSchema(newResp[code]);
     if (!before || !after) continue;
-    nodes.push(...diffSchema(before, after, { path: `${basePath}/responses/${code}`, label: code, direction: "response" }));
+    nodes.push(
+      ...diffSchema(before, after, {
+        path: `${basePath}/responses/${code}`,
+        label: code,
+        direction: "response",
+      }),
+    );
   }
   return nodes;
 }
@@ -135,13 +190,31 @@ function diffResponses(oldOp: Operation, newOp: Operation, basePath: string): Di
  */
 export function diffOperation(oldOp: Operation, newOp: Operation, basePath: string): DiffNode[] {
   const children: DiffNode[] = [];
-  const params = group(`${basePath}/parameters`, "parameters", diffParameters(oldOp, newOp, basePath));
-  const body = group(`${basePath}/requestBody`, "requestBody", diffRequestBody(oldOp, newOp, basePath));
-  const responses = group(`${basePath}/responses`, "responses", diffResponses(oldOp, newOp, basePath));
+  const params = group(
+    `${basePath}/parameters`,
+    "parameters",
+    diffParameters(oldOp, newOp, basePath),
+  );
+  const body = group(
+    `${basePath}/requestBody`,
+    "requestBody",
+    diffRequestBody(oldOp, newOp, basePath),
+  );
+  const responses = group(
+    `${basePath}/responses`,
+    "responses",
+    diffResponses(oldOp, newOp, basePath),
+  );
   for (const g of [params, body, responses]) if (g) children.push(g);
   return children;
 }
 
-function mk(path: string, label: string, severity: Severity, category: DiffNode["category"], reason: string): DiffNode {
+function mk(
+  path: string,
+  label: string,
+  severity: Severity,
+  category: DiffNode["category"],
+  reason: string,
+): DiffNode {
   return { path, label, severity, category, reason, children: [] };
 }

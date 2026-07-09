@@ -19,10 +19,16 @@ export function validateOpenApi(doc: OpenApiDocument): ValidationResult {
   const hasPaths = typeof paths === "object" && paths !== null && !Array.isArray(paths);
 
   if (!hasVersion && !hasPaths) {
-    return { ok: false, message: "This doesn't look like an OpenAPI spec (no `openapi` version or `paths`)." };
+    return {
+      ok: false,
+      message: "This doesn't look like an OpenAPI spec (no `openapi` version or `paths`).",
+    };
   }
   if (!hasVersion) {
-    return { ok: false, message: "Missing or unsupported `openapi` version — expected a 3.x string." };
+    return {
+      ok: false,
+      message: "Missing or unsupported `openapi` version — expected a 3.x string.",
+    };
   }
   if (!hasPaths) {
     return { ok: false, message: "Missing a `paths` object — nothing to compare." };

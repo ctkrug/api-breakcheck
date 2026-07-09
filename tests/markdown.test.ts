@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { collectLeaves, toMarkdown } from "../src/export/markdown";
 import { diffSpecs } from "../src/diff/diffEngine";
 
-const spec = (paths: Record<string, unknown>) => ({ openapi: "3.0.0", info: { title: "T", version: "1" }, paths });
+const spec = (paths: Record<string, unknown>) => ({
+  openapi: "3.0.0",
+  info: { title: "T", version: "1" },
+  paths,
+});
 
 describe("toMarkdown", () => {
   it("lists breaking changes before safe ones", () => {
@@ -43,7 +47,11 @@ describe("toMarkdown", () => {
   it("includes a breadcrumb location for nested changes", () => {
     const oldS = spec({ "/a": { get: { parameters: [] } } });
     const newS = spec({
-      "/a": { get: { parameters: [{ name: "q", in: "query", required: true, schema: { type: "string" } }] } },
+      "/a": {
+        get: {
+          parameters: [{ name: "q", in: "query", required: true, schema: { type: "string" } }],
+        },
+      },
     });
     const leaves = collectLeaves(diffSpecs(oldS, newS));
     expect(leaves[0]?.location).toContain("GET /a");

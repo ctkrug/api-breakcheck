@@ -4,10 +4,17 @@ import { renderTree, visibleChildren } from "../src/ui/tree";
 import { diffSpecs } from "../src/diff/diffEngine";
 import type { DiffNode } from "../src/diff/types";
 
-const spec = (paths: Record<string, unknown>) => ({ openapi: "3.0.0", info: { title: "T", version: "1" }, paths });
+const spec = (paths: Record<string, unknown>) => ({
+  openapi: "3.0.0",
+  info: { title: "T", version: "1" },
+  paths,
+});
 
 const mixed = () =>
-  diffSpecs(spec({ "/a": { get: {}, delete: {} } }), spec({ "/a": { get: {} }, "/b": { get: {} } }));
+  diffSpecs(
+    spec({ "/a": { get: {}, delete: {} } }),
+    spec({ "/a": { get: {} }, "/b": { get: {} } }),
+  );
 
 describe("visibleChildren", () => {
   it("returns all children when the filter is off", () => {

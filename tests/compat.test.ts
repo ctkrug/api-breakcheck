@@ -54,15 +54,11 @@ describe("isTypeChangeBreaking", () => {
 
 describe("isEnumChangeBreaking", () => {
   it("flags a removed enum value as breaking", () => {
-    expect(
-      isEnumChangeBreaking({ enum: ["a", "b", "c"] }, { enum: ["a", "b"] }),
-    ).toBe(true);
+    expect(isEnumChangeBreaking({ enum: ["a", "b", "c"] }, { enum: ["a", "b"] })).toBe(true);
   });
 
   it("treats an added enum value as safe", () => {
-    expect(
-      isEnumChangeBreaking({ enum: ["a", "b"] }, { enum: ["a", "b", "c"] }),
-    ).toBe(false);
+    expect(isEnumChangeBreaking({ enum: ["a", "b"] }, { enum: ["a", "b", "c"] })).toBe(false);
   });
 
   it("flags introducing an enum where none existed as breaking", () => {
@@ -80,9 +76,9 @@ describe("isEnumChangeBreaking", () => {
 
 describe("isFormatChangeBreaking", () => {
   it("flags adding a format constraint as breaking", () => {
-    expect(isFormatChangeBreaking({ type: "string" }, { type: "string", format: "date-time" })).toBe(
-      true,
-    );
+    expect(
+      isFormatChangeBreaking({ type: "string" }, { type: "string", format: "date-time" }),
+    ).toBe(true);
   });
 
   it("treats dropping a format constraint as safe", () => {

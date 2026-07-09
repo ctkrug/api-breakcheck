@@ -10,7 +10,11 @@ describe("diffSchema — request direction", () => {
   it("flags a new required field as breaking", () => {
     const nodes = run(
       { type: "object", properties: { a: { type: "string" } } },
-      { type: "object", properties: { a: { type: "string" }, b: { type: "string" } }, required: ["b"] },
+      {
+        type: "object",
+        properties: { a: { type: "string" }, b: { type: "string" } },
+        required: ["b"],
+      },
       "request",
     );
     const b = nodes.find((n) => n.label === "b");
@@ -111,8 +115,14 @@ describe("diffSchema — constraint changes (both directions)", () => {
 
   it("recurses into nested object properties", () => {
     const nodes = run(
-      { type: "object", properties: { outer: { type: "object", properties: { inner: { type: "string" } } } } },
-      { type: "object", properties: { outer: { type: "object", properties: { inner: { type: "integer" } } } } },
+      {
+        type: "object",
+        properties: { outer: { type: "object", properties: { inner: { type: "string" } } } },
+      },
+      {
+        type: "object",
+        properties: { outer: { type: "object", properties: { inner: { type: "integer" } } } },
+      },
       "request",
     );
     const inner = nodes.find((n) => n.path.includes("/outer/inner"));

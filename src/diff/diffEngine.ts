@@ -50,7 +50,13 @@ export function diffSpecs(oldSpec: OpenApiDocument, newSpec: OpenApiDocument): D
 function diffPath(path: string, oldItem: unknown, newItem: unknown): DiffNode | null {
   const basePath = `/paths${path}`;
   if (oldItem && !newItem) {
-    return leaf(basePath, path, "breaking", "path", "Path was removed; any client still calling it will fail.");
+    return leaf(
+      basePath,
+      path,
+      "breaking",
+      "path",
+      "Path was removed; any client still calling it will fail.",
+    );
   }
   if (!oldItem && newItem) {
     return leaf(basePath, path, "safe", "path", "Path is new; existing clients are unaffected.");
@@ -66,18 +72,40 @@ function diffPath(path: string, oldItem: unknown, newItem: unknown): DiffNode | 
     const label = `${method.toUpperCase()} ${path}`;
 
     if (before && !after) {
-      opNodes.push(leaf(opBase, label, "breaking", "operation", `${method.toUpperCase()} ${path} was removed; clients calling it will fail.`));
+      opNodes.push(
+        leaf(
+          opBase,
+          label,
+          "breaking",
+          "operation",
+          `${method.toUpperCase()} ${path} was removed; clients calling it will fail.`,
+        ),
+      );
     } else if (!before && after) {
-      opNodes.push(leaf(opBase, label, "safe", "operation", `${method.toUpperCase()} ${path} is new; existing clients are unaffected.`));
+      opNodes.push(
+        leaf(
+          opBase,
+          label,
+          "safe",
+          "operation",
+          `${method.toUpperCase()} ${path} is new; existing clients are unaffected.`,
+        ),
+      );
     } else if (before && after) {
-      const kids = diffOperation(before as Record<string, unknown>, after as Record<string, unknown>, opBase);
+      const kids = diffOperation(
+        before as Record<string, unknown>,
+        after as Record<string, unknown>,
+        opBase,
+      );
       if (kids.length) {
         opNodes.push({
           path: opBase,
           label,
           category: "operation",
           severity: kids.some(subtreeHasBreaking) ? "breaking" : "safe",
-          reason: kids.some(subtreeHasBreaking) ? "Contains breaking changes." : "Backward-compatible changes only.",
+          reason: kids.some(subtreeHasBreaking)
+            ? "Contains breaking changes."
+            : "Backward-compatible changes only.",
           children: kids,
         });
       }
@@ -90,7 +118,9 @@ function diffPath(path: string, oldItem: unknown, newItem: unknown): DiffNode | 
     label: path,
     category: "path",
     severity: opNodes.some(subtreeHasBreaking) ? "breaking" : "safe",
-    reason: opNodes.some(subtreeHasBreaking) ? "Contains breaking changes." : "Backward-compatible changes only.",
+    reason: opNodes.some(subtreeHasBreaking)
+      ? "Contains breaking changes."
+      : "Backward-compatible changes only.",
     children: opNodes,
   };
 }
@@ -108,7 +138,13 @@ function countLeaves(nodes: DiffNode[], severity: Severity): number {
   return total;
 }
 
-function leaf(path: string, label: string, severity: Severity, category: DiffNode["category"], reason: string): DiffNode {
+function leaf(
+  path: string,
+  label: string,
+  severity: Severity,
+  category: DiffNode["category"],
+  reason: string,
+): DiffNode {
   return { path, label, severity, category, reason, children: [] };
 }
 

@@ -78,7 +78,11 @@ describe("diffSpecs — request/response bodies (story 2.3)", () => {
     });
     const newS = spec({
       "/things": op(
-        { type: "object", properties: { a: { type: "string" }, b: { type: "string" } }, required: ["b"] },
+        {
+          type: "object",
+          properties: { a: { type: "string" }, b: { type: "string" } },
+          required: ["b"],
+        },
         { type: "object", properties: { x: { type: "string" } } },
       ),
     });
