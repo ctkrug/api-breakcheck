@@ -12,7 +12,9 @@ describe("resolveRefs", () => {
       target: { $ref: "#/components/schemas/User" },
     };
 
-    const resolved = resolveRefs(doc) as any;
+    const resolved = resolveRefs(doc) as unknown as {
+      target: { type: string; properties: { id: { type: string } } };
+    };
     expect(resolved.target).toEqual({
       type: "object",
       properties: { id: { type: "string" } },
@@ -31,11 +33,19 @@ describe("resolveRefs", () => {
       },
     };
 
-    const resolved = resolveRefs(doc) as any;
+    interface NodeSchema {
+      type: string;
+      properties: { next: NodeSchema | { $ref: string } };
+    }
+
+    const resolved = resolveRefs(doc) as unknown as {
+      components: { schemas: { Node: NodeSchema } };
+    };
     const node = resolved.components.schemas.Node;
     // First hop resolves to the full schema; the self-reference one level down
     // is where the cycle guard kicks in and keeps the raw pointer.
-    expect(node.properties.next.properties.next).toEqual({
+    const firstHop = node.properties.next as NodeSchema;
+    expect(firstHop.properties.next).toEqual({
       $ref: "#/components/schemas/Node",
     });
   });
