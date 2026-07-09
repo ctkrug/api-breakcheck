@@ -131,6 +131,65 @@ describe("diffSchema — constraint changes (both directions)", () => {
     expect(run(schema, { ...schema }, "request")).toEqual([]);
   });
 
+  it("treats a relaxed (dropped) format as a safe change", () => {
+    const nodes = run(
+      { type: "object", properties: { t: { type: "string", format: "date-time" } } },
+      { type: "object", properties: { t: { type: "string" } } },
+      "request",
+    );
+    const fmt = nodes.find((n) => n.category === "format");
+    expect(fmt?.severity).toBe("safe");
+    expect(fmt?.reason).toContain("relaxed");
+  });
+
+  it("flags a newly-introduced enum constraint as breaking", () => {
+    const nodes = run(
+      { type: "object", properties: { s: { type: "string" } } },
+      { type: "object", properties: { s: { enum: ["a", "b"] } } },
+      "request",
+    );
+    const enumNode = nodes.find((n) => n.category === "enum");
+    expect(enumNode?.severity).toBe("breaking");
+    expect(enumNode?.reason).toContain("enum constraint");
+  });
+});
+
+describe("diffSchema — safe optionality transitions", () => {
+  it("treats a request field becoming optional as safe", () => {
+    const nodes = run(
+      { type: "object", properties: { a: { type: "string" } }, required: ["a"] },
+      { type: "object", properties: { a: { type: "string" } } },
+      "request",
+    );
+    const node = nodes.find((n) => n.path.endsWith("#required"));
+    expect(node?.severity).toBe("safe");
+    expect(node?.reason).toContain("now optional");
+  });
+
+  it("treats a response field becoming always-present as safe", () => {
+    const nodes = run(
+      { type: "object", properties: { a: { type: "string" } } },
+      { type: "object", properties: { a: { type: "string" } }, required: ["a"] },
+      "response",
+    );
+    const node = nodes.find((n) => n.path.endsWith("#required"));
+    expect(node?.severity).toBe("safe");
+    expect(node?.reason).toContain("always present");
+  });
+
+  it("treats a removed request field as safe with an explanatory reason", () => {
+    const nodes = run(
+      { type: "object", properties: { a: { type: "string" }, b: { type: "string" } } },
+      { type: "object", properties: { a: { type: "string" } } },
+      "request",
+    );
+    const b = nodes.find((n) => n.label === "b");
+    expect(b?.severity).toBe("safe");
+    expect(b?.reason).toContain("was removed");
+  });
+});
+
+describe("diffSchema — misc", () => {
   it("recurses into nested object properties", () => {
     const nodes = run(
       {
