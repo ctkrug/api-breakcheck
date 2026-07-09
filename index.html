@@ -2,15 +2,29 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <base href="./" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Breakcheck</title>
+    <meta name="color-scheme" content="light" />
+    <title>API Breakcheck — instant OpenAPI breaking-change diff</title>
     <meta
       name="description"
-      content="Paste two OpenAPI specs, get an instant red/green breaking-change diff tree."
+      content="Paste two OpenAPI specs, get an instant red/green breaking-change diff tree. No CLI, no config, nothing leaves your browser."
+    />
+    <!-- Blueprint monogram favicon, generated inline (no default globe). -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B2B3C'/%3E%3Cpath d='M6 6v20M6 6h11M6 16h9M6 26h11' fill='none' stroke='%230F6FA3' stroke-width='2.4' stroke-linecap='square'/%3E%3Ccircle cx='24' cy='11' r='2.6' fill='%232E8B57'/%3E%3Ccircle cx='24' cy='22' r='2.6' fill='%23C23B3B'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
     />
     <script type="module" src="./src/main.ts"></script>
   </head>
   <body>
     <div id="app"></div>
+    <noscript>API Breakcheck runs entirely in your browser and needs JavaScript enabled.</noscript>
   </body>
 </html>
