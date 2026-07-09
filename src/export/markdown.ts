@@ -13,14 +13,17 @@ export interface LeafChange {
  * root ("/paths") is excluded from the breadcrumb.
  */
 export function collectLeaves(result: DiffResult): LeafChange[] {
-  const walk = (node: DiffNode, trail: string[]): LeafChange[] => {
-    if (node.children.length === 0) {
+  const walk = (node: DiffNode, trail: string[], isRoot: boolean): LeafChange[] => {
+    // The synthetic root ("/paths") is never itself a change — when it has no
+    // children (identical specs) it must yield zero leaves, not a phantom one,
+    // so the report renders a clean "no differences" state.
+    if (!isRoot && node.children.length === 0) {
       return [{ severity: node.severity, reason: node.reason, location: trail.join(" › ") }];
     }
-    const next = node.path === "/paths" ? trail : [...trail, node.label];
-    return node.children.flatMap((child) => walk(child, next));
+    const next = isRoot ? trail : [...trail, node.label];
+    return node.children.flatMap((child) => walk(child, next, false));
   };
-  return walk(result.root, []);
+  return walk(result.root, [], true);
 }
 
 /**
