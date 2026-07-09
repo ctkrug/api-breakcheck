@@ -33,6 +33,10 @@ describe("resolveRefs", () => {
 
     const resolved = resolveRefs(doc) as any;
     const node = resolved.components.schemas.Node;
-    expect(node.properties.next).toEqual({ $ref: "#/components/schemas/Node" });
+    // First hop resolves to the full schema; the self-reference one level down
+    // is where the cycle guard kicks in and keeps the raw pointer.
+    expect(node.properties.next.properties.next).toEqual({
+      $ref: "#/components/schemas/Node",
+    });
   });
 });
