@@ -38,6 +38,19 @@ describe("parseSpec", () => {
     expect(() => parseSpec("}{ this is not valid : : :")).not.toThrow();
   });
 
+  it("does not count brace/bracket characters inside quoted strings as nesting", () => {
+    // A description containing many literal {/[ characters, plus an escaped
+    // quote sitting right next to one, well past the nesting threshold — none
+    // of this is real structural nesting and must not trip the depth guard.
+    const braces = "{[".repeat(150);
+    const text = JSON.stringify({
+      openapi: "3.0.0",
+      paths: {},
+      info: { title: `desc with \\" quote then ${braces}`, version: "1" },
+    });
+    expect(parseSpec(text).ok).toBe(true);
+  });
+
   it("rejects pathologically deep flow nesting instead of blowing the call stack", () => {
     let schema = '{"type":"string"}';
     for (let i = 0; i < 2000; i += 1) {
