@@ -85,4 +85,12 @@ describe("app behaviors", () => {
     byText(app, "Edit specs").click();
     expect(io.classList.contains("io--collapsed")).toBe(false);
   });
+
+  it("moves focus to Edit specs after a run instead of dropping it to <body>", async () => {
+    // Compare/Load-example fire from a control this collapse is about to hide,
+    // which otherwise drops focus to <body> and confuses subsequent Tab order.
+    const app = await mountApp();
+    runExample(app);
+    expect(document.activeElement).toBe(byText(app, "Edit specs"));
+  });
 });
