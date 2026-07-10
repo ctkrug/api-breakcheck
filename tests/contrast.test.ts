@@ -7,13 +7,14 @@ import { describe, expect, it } from "vitest";
  */
 function contrastRatio(hexA: string, hexB: string): number {
   const luminance = (hex: string): number => {
-    const [r, g, b] = (hex.match(/\w\w/g) ?? []).map((c) => {
+    const channels = (hex.match(/\w\w/g) ?? []).map((c) => {
       const v = parseInt(c, 16) / 255;
       return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
     });
+    const [r = 0, g = 0, b = 0] = channels;
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   };
-  const [l1, l2] = [luminance(hexA), luminance(hexB)].sort((a, b) => b - a);
+  const [l1, l2] = [luminance(hexA), luminance(hexB)].sort((a, b) => b - a) as [number, number];
   return (l1 + 0.05) / (l2 + 0.05);
 }
 
@@ -21,8 +22,9 @@ const css = readFileSync(new URL("../src/style.css", import.meta.url), "utf8");
 
 function token(name: string): string {
   const match = css.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`));
-  if (!match) throw new Error(`token --${name} not found in style.css`);
-  return match[1];
+  const value = match?.[1];
+  if (!value) throw new Error(`token --${name} not found in style.css`);
+  return value;
 }
 
 describe("design tokens — text contrast", () => {
