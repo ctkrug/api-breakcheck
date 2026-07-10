@@ -72,6 +72,13 @@ describe("isEnumChangeBreaking", () => {
   it("reports the specific values removed", () => {
     expect(removedEnumValues({ enum: ["a", "b", "c"] }, { enum: ["a"] })).toEqual(["b", "c"]);
   });
+
+  it("reports no removed values when the enum constraint was dropped", () => {
+    // isEnumChangeBreaking treats this as safe, so diffSchema never calls
+    // removedEnumValues here — but as an independently exported, auditable
+    // primitive its own contract for this input still needs to be pinned.
+    expect(removedEnumValues({ enum: ["a", "b"] }, { type: "string" })).toEqual([]);
+  });
 });
 
 describe("isFormatChangeBreaking", () => {
