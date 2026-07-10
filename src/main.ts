@@ -121,13 +121,19 @@ function main(root: HTMLElement): void {
   const live = h("div", { class: "toast-host", "aria-live": "polite", "aria-atomic": "true" });
   root.append(live);
 
-  // Restore a shared comparison, if the hash carries one.
-  const shared = decodeShare(location.hash);
-  if (shared) {
-    oldPane.setText(shared.old);
-    newPane.setText(shared.next);
-    compare();
+  // Restore a shared comparison, if the hash carries one — both at initial
+  // load and when the hash changes underneath us (browser back/forward
+  // between two different share links doesn't reload the page).
+  function restoreFromHash(): void {
+    const shared = decodeShare(location.hash);
+    if (shared) {
+      oldPane.setText(shared.old);
+      newPane.setText(shared.next);
+      compare();
+    }
   }
+  restoreFromHash();
+  window.addEventListener("hashchange", restoreFromHash);
 
   // --- behavior ---
 
