@@ -1,84 +1,110 @@
-# API Breakcheck
+# Redline
+
+**▶ Live demo: [apps.charliekrug.com/api-breakcheck](https://apps.charliekrug.com/api-breakcheck/)**
+
+Catch breaking API changes before you merge. Paste two versions of an OpenAPI spec and get an
+instant red/green tree that marks every change **breaking** or **safe**, with a one-line reason for
+each. No CLI, no config, nothing leaves your browser.
 
 [![CI](https://github.com/ctkrug/api-breakcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/ctkrug/api-breakcheck/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
 
-Drop in two versions of an OpenAPI spec, get an instant red/green diff tree that marks every
-change **breaking** or **safe** — with a one-line reason for each. No config, no CI pipeline,
-no install.
+## Who it's for
+
+API developers and small platform teams at the exact moment they've changed a spec and want the
+blast radius before anyone else looks at the PR. It's the pre-flight gut-check, not the CI gate.
 
 ## Why
 
-Most "OpenAPI diff" tooling lives inside a CI step: you write a config file, wire up a GitHub
-Action, and wait for a pipeline run to tell you what changed. That's the right long-term setup,
-but it's overkill for the moment that actually matters most — the ten seconds before you hit
-"merge" on an API change, when you just want to know _"did I just break someone?"_
+The tools that answer "did I just break a client?" properly (`oasdiff`, `openapi-diff`) are built
+for CI: install a binary or action, write a config file, wire it into a pipeline, wait for a run.
+That's the right tool for enforcement, but it's overkill for the ten seconds right before you open
+the PR. And a raw text diff of two YAML files is worse than useless here: it buries the one
+one-line breaking change under hundreds of lines of `$ref` and key-reordering noise.
 
-API Breakcheck skips all of that. Paste your old spec, paste your new spec, and get the answer
-immediately, in the browser, with nothing installed and nothing configured. It's the pre-release
-gut-check tool, not the enforcement tool.
+Redline skips all of that. Paste the old spec, paste the new spec, read the tree.
 
 ## What it does
 
-- Parses two OpenAPI 3.x documents (JSON or YAML) entirely client-side.
-- Resolves `$ref` pointers (including nested and circular refs) so the diff compares fully
-  realized schemas, not raw pointer text.
-- Walks paths, operations, parameters, request bodies, and response schemas to produce a
-  structural diff tree.
-- Classifies every change as **breaking** or **safe** using real API-compatibility semantics
-  (see [`docs/VISION.md`](docs/VISION.md) for the full rule set) — for example:
-  - Removing an endpoint or operation → breaking.
-  - Adding a new required request field → breaking.
-  - Adding a new optional field or a new endpoint → safe.
-  - Narrowing a response field's type → breaking; widening it → safe.
-- Renders the result as a collapsible red/green tree with a one-line reason attached to every
-  leaf node, so you can scan a large diff in seconds.
-- Runs entirely in the browser — no backend, no data leaves your machine, and the whole thing
-  can be shared as a static link.
+- Parses two OpenAPI 3.0 / 3.1 documents (JSON or YAML) entirely client-side.
+- Resolves local `$ref` pointers (nested and circular) so the diff compares fully realized
+  schemas, not raw pointer text. Two specs organized differently but structurally identical
+  produce zero noise.
+- Walks paths, operations, parameters, request bodies, and response schemas and classifies every
+  change with real compatibility semantics, for example:
+  - Removing a path or operation, or a new required request field/parameter, is **breaking**.
+  - Narrowing a type, tightening a `format`, or dropping an `enum` value is **breaking**.
+  - A response field that's no longer guaranteed is **breaking**.
+  - A new path, a new optional field, or a relaxed constraint is **safe**.
+
+  Every verdict traces to a single named rule in [`src/diff/compat.ts`](src/diff/compat.ts), so the
+  reasoning behind "breaking" vs "safe" is auditable, not a heuristic. See
+  [`docs/VISION.md`](docs/VISION.md) for the full rule set.
+- Renders a collapsible red/green tree with a plain-English reason on every leaf, a breaking-only
+  filter, a shareable link (the comparison is encoded in the URL, not a server session), and a
+  Markdown export for pasting into a PR.
+
+## Sample output
+
+Loading the built-in Pet Store example (v1 → v2) and clicking **Export Markdown** produces:
+
+```markdown
+# Redline report
+
+**4 breaking** · **2 safe** change(s).
+
+## Breaking changes
+
+- New required query parameter `tag`; existing clients do not send it. _(/pets › GET /pets › parameters)_
+- Response field `status` is no longer guaranteed; clients relying on it may break. _(/pets › GET /pets › responses)_
+- `status` no longer accepts "pending"; clients using those values break. _(/pets › GET /pets › responses)_
+- DELETE /pets/{id} was removed; clients calling it will fail. _(/pets/{id})_
+
+## Safe changes
+
+- New optional request field `photoUrl`; existing clients are unaffected. _(/pets › POST /pets › requestBody)_
+- Path is new; existing clients are unaffected.
+```
 
 ## Using it
 
-1. Open the app and paste your current spec into the left pane and the proposed spec into the
-   right — or **drop a `.json`/`.yaml` file** onto either pane, or use **Upload file**. In a
-   hurry? Hit **Load example** to compare a sample Pet Store v1 → v2.
+1. Open the [live demo](https://apps.charliekrug.com/api-breakcheck/). Paste your current spec into
+   the left pane and the proposed spec into the right, or drop a `.json`/`.yaml` file onto either
+   pane. In a hurry? Hit **Load example** to compare a sample Pet Store v1 → v2.
 2. Click **Compare** (or press ⌘/Ctrl+Enter). The input bar collapses to a summary strip and the
    diff tree fills the screen.
-3. Scan the tree: red = breaking, green = safe, each leaf with a one-line reason. Use the
-   **Breaking only** filter to hide the noise, **Share** to copy a link that reproduces the exact
-   comparison, or **Export Markdown** to paste a report into a PR description.
+3. Scan the tree: red = breaking, green = safe, each leaf with a one-line reason. Use **Breaking
+   only** to hide the noise, **Share** to copy a link that reproduces the exact comparison, or
+   **Export Markdown** to paste a report into a PR description.
 
-Malformed JSON/YAML or a non-OpenAPI document produces a clear, pane-scoped error — never a blank
+Malformed JSON/YAML or a non-OpenAPI document produces a clear, pane-scoped error, never a blank
 screen or a thrown stack trace.
-
-## Roadmap
-
-- Wider OpenAPI 3.1 coverage (nullable handling, webhooks, `oneOf`/`allOf` composition).
-- Deep-linking to a specific node in a large tree.
 
 ## Stack
 
-- **TypeScript**, compiled with `tsc` / bundled with [Vite](https://vitejs.dev/).
-- Client-side only — no server component. Ships as a static site (`dist/`) deployable to any
-  static host, including a subpath like `apps.charliekrug.com/api-breakcheck`.
-- [Vitest](https://vitest.dev/) for unit tests of the diff engine.
-- No runtime dependencies beyond a YAML parser for spec ingestion — the diff/ref-resolution
-  engine is hand-rolled so the compatibility rules stay auditable.
-
-## Status
-
-Core is functional end to end: paste/upload two specs → semantic diff tree with breaking/safe
-verdicts, `$ref` resolution, breaking-only filter, shareable links, and Markdown export. See
-[`docs/VISION.md`](docs/VISION.md) for the product vision, [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-for the code map, and [`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+- **TypeScript**, bundled with [Vite](https://vitejs.dev/). Client-side only, no backend. Ships as
+  a static site deployable under any subpath.
+- [Vitest](https://vitest.dev/) for the test suite (150 tests, including property-based checks of
+  the compatibility rules and full happy-dom app tests).
+- No runtime dependencies beyond a YAML parser. The diff and `$ref`-resolution engine is
+  hand-rolled so the compatibility rules stay in one auditable place.
 
 ## Development
 
 ```sh
 npm install
 npm run dev      # local dev server
-npm test         # run the diff-engine test suite
+npm test         # run the test suite
 npm run build    # produce the static dist/ bundle
 ```
 
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the code map and
+[`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
+
+---
+
+More of Charlie's projects → [apps.charliekrug.com](https://apps.charliekrug.com)
