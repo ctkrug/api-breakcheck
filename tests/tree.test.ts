@@ -64,4 +64,15 @@ describe("renderTree", () => {
     const el = renderTree(diffSpecs(s, structuredClone(s)).root, { breakingOnly: false });
     expect(el.querySelector(".tree__empty-title")?.textContent).toMatch(/no differences/i);
   });
+
+  it("shows a designed empty state when every change is safe under the breaking-only filter", () => {
+    // A spec pair with only backward-compatible changes (a new path here), so
+    // the breaking-only filter has real differences to hide, not zero total.
+    const root = diffSpecs(
+      spec({ "/a": { get: {} } }),
+      spec({ "/a": { get: {} }, "/b": { get: {} } }),
+    ).root;
+    const el = renderTree(root, { breakingOnly: true });
+    expect(el.querySelector(".tree__empty-title")?.textContent).toMatch(/no breaking changes/i);
+  });
 });
