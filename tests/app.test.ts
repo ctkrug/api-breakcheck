@@ -79,6 +79,29 @@ describe("app wow moment", () => {
     expect(app.querySelector(".results")?.hasAttribute("hidden")).toBe(true);
   });
 
+  it("shows a friendly error if diffSpecs throws for any other unforeseen reason", async () => {
+    // The nesting-depth guard now catches the specific pathological case above
+    // before it ever reaches diffSpecs, so exercise the engine's own try/catch
+    // in compare() directly by forcing diffSpecs itself to throw.
+    vi.doMock("../src/diff/diffEngine", () => ({
+      diffSpecs: () => {
+        throw new Error("boom");
+      },
+    }));
+    const app = await mountApp();
+    const textareas = app.querySelectorAll("textarea");
+    (textareas[0] as HTMLTextAreaElement).value = "openapi: 3.0.0\npaths: {}";
+    (textareas[1] as HTMLTextAreaElement).value = "openapi: 3.0.0\npaths: {}";
+    [...app.querySelectorAll("button")].find((b) => b.textContent === "Compare")!.click();
+
+    const errors = [...app.querySelectorAll(".pane__error")].filter(
+      (e) => !(e as HTMLElement).hidden,
+    );
+    expect(errors.length).toBeGreaterThan(0);
+    expect(app.querySelector(".results")?.hasAttribute("hidden")).toBe(true);
+    vi.doUnmock("../src/diff/diffEngine");
+  });
+
   it("rejects a well-formed non-OpenAPI document with a clear message", async () => {
     const app = await mountApp();
     const textareas = app.querySelectorAll("textarea");
