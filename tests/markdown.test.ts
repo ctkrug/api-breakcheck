@@ -52,6 +52,26 @@ describe("toMarkdown", () => {
     expect(collectLeaves(diffSpecs(s, structuredClone(s)))).toEqual([]);
   });
 
+  it("omits the Safe changes section entirely when every change is breaking", () => {
+    const oldS = spec({ "/a": { get: {} } });
+    const newS = spec({});
+    const result = diffSpecs(oldS, newS);
+    expect(result.safeCount).toBe(0);
+    const md = toMarkdown(result);
+    expect(md).toContain("Breaking changes");
+    expect(md).not.toContain("Safe changes");
+  });
+
+  it("omits the Breaking changes section entirely when every change is safe", () => {
+    const oldS = spec({});
+    const newS = spec({ "/a": { get: {} } });
+    const result = diffSpecs(oldS, newS);
+    expect(result.breakingCount).toBe(0);
+    const md = toMarkdown(result);
+    expect(md).toContain("Safe changes");
+    expect(md).not.toContain("Breaking changes");
+  });
+
   it("includes a breadcrumb location for nested changes", () => {
     const oldS = spec({ "/a": { get: { parameters: [] } } });
     const newS = spec({
