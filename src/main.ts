@@ -21,7 +21,7 @@ function main(root: HTMLElement): void {
 
   const oldPane = createInputPane({
     label: "Old spec",
-    placeholder: "Paste your current OpenAPI 3.x spec (JSON or YAML) — or drop a file.",
+    placeholder: "Paste your current OpenAPI 3.x spec (JSON or YAML), or drop a file.",
     onSubmit: compare,
   });
   const newPane = createInputPane({
@@ -148,7 +148,7 @@ function main(root: HTMLElement): void {
     } catch {
       // The engine is defensive, but never let an unforeseen input wedge the UI:
       // surface a pane-scoped error instead of a blank screen.
-      newPane.showError("Couldn't compare these specs — please check they're valid OpenAPI.");
+      newPane.showError("Couldn't compare these specs. Please check they're valid OpenAPI.");
       return;
     }
     state.result = result;
@@ -263,11 +263,7 @@ function masthead(): HTMLElement {
     h(
       "div",
       { class: "masthead__brand" },
-      h(
-        "div",
-        { class: "wordmark" },
-        h("span", { class: "wordmark__text" }, "Redline"),
-      ),
+      h("div", { class: "wordmark" }, h("span", { class: "wordmark__text" }, "Redline")),
       h(
         "p",
         { class: "tagline" },
@@ -331,7 +327,7 @@ function explainer(): HTMLElement {
     h(
       "p",
       { class: "explainer__lede" },
-      "Every verdict traces to a named compatibility rule, so a red node always comes with the sentence explaining why. That is the whole point: not \"something changed\" but \"this change rejects requests your clients still send.\"",
+      'Every verdict traces to a named compatibility rule, so a red node always comes with the sentence explaining why. That is the whole point: not "something changed" but "this change rejects requests your clients still send."',
     ),
     h("h3", { class: "explainer__subtitle" }, "Questions"),
     h(
