@@ -70,6 +70,7 @@ export function resolveRefs(document: OpenApiDocument): OpenApiDocument {
     for (const [key, value] of Object.entries(obj)) {
       resolved[key] = walk(value, activeRefs);
     }
+    seen.delete(obj);
     return resolved;
   }
 
