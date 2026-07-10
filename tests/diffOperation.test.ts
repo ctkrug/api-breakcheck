@@ -98,4 +98,13 @@ describe("diffOperation — request body media types", () => {
     const nodes = diffOperation(body("string"), body("integer"), "/paths/x/post");
     expect(nodes.some(subtreeHasBreaking)).toBe(true);
   });
+
+  it("treats a requestBody with no media types at all as having no schema", () => {
+    const nodes = diffOperation(
+      { post: undefined, requestBody: { content: {} } },
+      { post: undefined, requestBody: { content: {} } },
+      "/paths/x/post",
+    );
+    expect(nodes).toEqual([]);
+  });
 });
