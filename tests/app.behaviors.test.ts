@@ -85,7 +85,7 @@ describe("app behaviors", () => {
     expect(writeText).toHaveBeenCalledWith(expect.stringContaining("#d="));
 
     byText(app, "Export Markdown").click();
-    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("# API Breakcheck report"));
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("# Redline report"));
   });
 
   it("collapses the input to a strip after a run and reopens on Edit specs", async () => {

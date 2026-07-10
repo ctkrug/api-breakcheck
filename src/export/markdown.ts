@@ -37,7 +37,7 @@ export function toMarkdown(result: DiffResult): string {
   const breaking = leaves.filter((l) => l.severity === "breaking");
   const safe = leaves.filter((l) => l.severity === "safe");
 
-  const lines: string[] = ["# API Breakcheck report", ""];
+  const lines: string[] = ["# Redline report", ""];
 
   if (leaves.length === 0) {
     lines.push("No differences found between the two specs.", "");
