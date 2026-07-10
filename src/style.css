@@ -95,32 +95,88 @@ a {
   margin-bottom: var(--s5);
 }
 
-/* Drafted wordmark: a bracketed monospace lockup, not just the name in a heading. */
+.masthead__brand {
+  min-width: 0;
+}
+
+/* Drafted wordmark: the name over a literal red line that draws itself in. */
 .wordmark {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s2);
+  display: inline-block;
+}
+.wordmark__text {
+  position: relative;
+  display: inline-block;
   font-family: var(--mono);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--text);
+  padding-bottom: 4px;
 }
-.wordmark .brk {
-  color: var(--accent);
+.wordmark__text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: var(--danger);
+  transform-origin: left center;
+  animation: redline-draw 520ms ease-out both;
 }
-.wordmark .tick {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border: 2px solid var(--success);
-  border-radius: 2px;
-  transform: translateY(1px);
+@keyframes redline-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wordmark__text::after {
+    animation: none;
+  }
 }
 .tagline {
   color: var(--text-muted);
   font-size: 0.9rem;
   max-width: 60ch;
+  margin: var(--s3) 0 0;
+}
+
+/* Masthead GitHub link. */
+.masthead__gh {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-input);
+  background: var(--surface-1);
+  box-shadow: var(--flat-shadow);
+  transition:
+    transform 150ms ease-out,
+    box-shadow 150ms ease-out,
+    background 150ms ease-out;
+}
+.masthead__gh:hover {
+  background: var(--surface-2);
+}
+.masthead__gh:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.masthead__gh:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+.gh-mark {
+  display: inline-flex;
 }
 
 /* --- panels --- */
@@ -531,12 +587,84 @@ a {
 }
 
 /* ================================================================== *
+ * Below-the-fold explainer + FAQ (search-intent copy).
+ * ================================================================== */
+
+.explainer {
+  margin-top: var(--s7);
+  padding-top: var(--s6);
+  border-top: 1px solid var(--hairline);
+  max-width: 74ch;
+}
+.explainer__title {
+  font-size: 1.35rem;
+  margin-bottom: var(--s4);
+}
+.explainer__lede {
+  color: var(--text-muted);
+  max-width: 70ch;
+  margin: 0 0 var(--s4);
+}
+.explainer__subtitle {
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin: var(--s6) 0 var(--s4);
+}
+.faq {
+  margin: 0;
+}
+.faq__q {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text);
+  margin-top: var(--s4);
+}
+.faq__a {
+  margin: var(--s1) 0 0;
+  color: var(--text-muted);
+  max-width: 70ch;
+}
+
+/* ================================================================== *
+ * Footer — one quiet doorway back to the portfolio.
+ * ================================================================== */
+
+.site-footer {
+  margin-top: var(--s7);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.site-footer__link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.site-footer__link:hover {
+  text-decoration: underline;
+}
+.site-footer__sep {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+/* ================================================================== *
  * Responsive.
  * ================================================================== */
 
 @media (max-width: 860px) {
   #app {
     padding: var(--s4) var(--s3) var(--s6);
+  }
+  .masthead {
+    flex-direction: column;
+    align-items: flex-start;
   }
   .io__panes {
     grid-template-columns: 1fr;

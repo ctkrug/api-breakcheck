@@ -116,7 +116,7 @@ function main(root: HTMLElement): void {
     strip,
   );
 
-  root.append(masthead(), io, results);
+  root.append(masthead(), io, results, explainer(), siteFooter());
 
   const live = h("div", { class: "toast-host", "aria-live": "polite", "aria-atomic": "true" });
   root.append(live);
@@ -254,26 +254,116 @@ function summaryLine(result: DiffResult): string {
   return `${b} breaking · ${s} safe`;
 }
 
+const REPO_URL = "https://github.com/ctkrug/api-breakcheck";
+
 function masthead(): HTMLElement {
   return h(
     "header",
     { class: "masthead" },
     h(
       "div",
-      {},
+      { class: "masthead__brand" },
       h(
         "div",
         { class: "wordmark" },
-        h("span", {}, "API"),
-        h("span", { class: "brk" }, "Break"),
-        h("span", {}, "check"),
-        h("span", { class: "tick", "aria-hidden": "true" }),
+        h("span", { class: "wordmark__text" }, "Redline"),
       ),
       h(
         "p",
         { class: "tagline" },
-        "Paste two OpenAPI specs and see, instantly, which changes break clients — no CLI, no config, nothing leaves your browser.",
+        "Paste two OpenAPI specs and see which changes break your clients, each with a one-line reason. Nothing installed, nothing uploaded.",
       ),
+    ),
+    h(
+      "a",
+      { class: "masthead__gh", href: REPO_URL, target: "_blank", rel: "noopener" },
+      githubMark(),
+      h("span", {}, "GitHub"),
+    ),
+  );
+}
+
+/** Inline GitHub glyph, drawn in currentColor to match the blueprint chrome. */
+function githubMark(): HTMLElement {
+  const span = h("span", { class: "gh-mark", "aria-hidden": "true" });
+  span.innerHTML = `<svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>`;
+  return span;
+}
+
+/**
+ * Below-the-fold explainer + FAQ. Plain, useful copy that answers what a
+ * breaking API change is and how Redline decides — doubles as the page's
+ * search-intent content.
+ */
+function explainer(): HTMLElement {
+  const faqs: Array<[string, string]> = [
+    [
+      "What counts as a breaking change in an OpenAPI spec?",
+      "A change is breaking when a client written against the old spec could stop working: a removed path or operation, a new required request field or parameter, a narrowed type, a tightened format, a dropped enum value, or a response field that is no longer guaranteed. Redline classifies each of these from explicit rules, not guesswork, and shows the exact reason on every node.",
+    ],
+    [
+      "Does Redline upload my spec anywhere?",
+      "No. Parsing, $ref resolution, and diffing all run in your browser tab. Nothing is sent to a server, which is why it is safe to paste an internal spec. A shared link encodes both specs inside the URL itself, not a server session.",
+    ],
+    [
+      "Which OpenAPI versions and formats work?",
+      "OpenAPI 3.0 and 3.1 documents, written as either JSON or YAML. Local $ref pointers (including nested and circular ones) are resolved before the diff so two specs organized differently but structurally identical produce no noise.",
+    ],
+    [
+      "How is this different from oasdiff or openapi-diff?",
+      "Those tools are built for CI: you install a binary or action, write a config file, and wait for a pipeline run. Redline is the ten-second check right before you open the pull request. Paste, compare, read the tree. It complements a CI gate rather than replacing it.",
+    ],
+    [
+      "Can I share or save a comparison?",
+      "Yes. Share copies a link that reproduces the exact diff in a fresh tab with no re-upload. Export Markdown copies a report with breaking changes listed first, ready to paste into a pull request description.",
+    ],
+  ];
+
+  return h(
+    "section",
+    { class: "explainer", "aria-label": "About Redline" },
+    h("h2", { class: "explainer__title" }, "Know the blast radius before you merge"),
+    h(
+      "p",
+      { class: "explainer__lede" },
+      "Editing an OpenAPI spec is easy. Knowing whether the edit breaks the clients already calling your API is the hard part, and a plain text diff of two YAML files will not tell you: it buries a single breaking change under hundreds of lines of reordering. Redline reads both specs the way a client would, resolves every $ref, and walks paths, operations, parameters, request bodies, and response schemas to mark each real change breaking or safe.",
+    ),
+    h(
+      "p",
+      { class: "explainer__lede" },
+      "Every verdict traces to a named compatibility rule, so a red node always comes with the sentence explaining why. That is the whole point: not \"something changed\" but \"this change rejects requests your clients still send.\"",
+    ),
+    h("h3", { class: "explainer__subtitle" }, "Questions"),
+    h(
+      "dl",
+      { class: "faq" },
+      ...faqs.flatMap(([q, a]) => [
+        h("dt", { class: "faq__q" }, q),
+        h("dd", { class: "faq__a" }, a),
+      ]),
+    ),
+  );
+}
+
+function siteFooter(): HTMLElement {
+  return h(
+    "footer",
+    { class: "site-footer" },
+    h(
+      "a",
+      { class: "site-footer__link", href: REPO_URL, target: "_blank", rel: "noopener" },
+      "Source on GitHub",
+    ),
+    h("span", { class: "site-footer__sep", "aria-hidden": "true" }, "·"),
+    h(
+      "a",
+      {
+        class: "site-footer__link",
+        href: "https://apps.charliekrug.com",
+        target: "_blank",
+        rel: "noopener",
+      },
+      "More by Charlie Krug",
     ),
   );
 }
