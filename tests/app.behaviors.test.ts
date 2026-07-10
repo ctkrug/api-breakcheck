@@ -29,6 +29,17 @@ describe("app behaviors", () => {
     expect(app.querySelector(".results")?.hasAttribute("hidden")).toBe(false);
   });
 
+  it("re-renders when the hash changes via browser back/forward navigation", async () => {
+    location.hash = encodeShare({ old: EXAMPLE_OLD, next: EXAMPLE_OLD });
+    const app = await mountApp();
+    expect(app.querySelector(".rail__num--breaking")?.textContent).toBe("0");
+
+    location.hash = encodeShare({ old: EXAMPLE_OLD, next: EXAMPLE_NEW });
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+
+    expect(Number(app.querySelector(".rail__num--breaking")?.textContent)).toBeGreaterThan(0);
+  });
+
   it("ignores a garbage hash without crashing or rendering results", async () => {
     location.hash = "#d=not-valid-base64!!!";
     const app = await mountApp();
