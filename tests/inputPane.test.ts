@@ -70,7 +70,12 @@ describe("createInputPane", () => {
     expect(onSubmit).not.toHaveBeenCalled();
 
     textarea.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", metaKey: true, bubbles: true, cancelable: true }),
+      new KeyboardEvent("keydown", {
+        key: "Enter",
+        metaKey: true,
+        bubbles: true,
+        cancelable: true,
+      }),
     );
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });

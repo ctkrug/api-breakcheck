@@ -31,9 +31,9 @@ describe("share codec — property based", () => {
       fc.property(fc.string(), (garbage) => {
         // Must not throw; either decodes to a valid payload or returns null.
         const result = decodeShare(garbage);
-        expect(result === null || (typeof result.old === "string" && typeof result.next === "string")).toBe(
-          true,
-        );
+        expect(
+          result === null || (typeof result.old === "string" && typeof result.next === "string"),
+        ).toBe(true);
       }),
     );
   });

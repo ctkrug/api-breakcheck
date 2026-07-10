@@ -90,7 +90,9 @@ describe("resolveRefs", () => {
       components: { schemas: { Name: { type: "string" }, A: shared, B: shared } },
     };
     const resolved = resolveRefs(doc) as unknown as {
-      components: { schemas: { A: { properties: { name: unknown } }; B: { properties: { name: unknown } } } };
+      components: {
+        schemas: { A: { properties: { name: unknown } }; B: { properties: { name: unknown } } };
+      };
     };
     expect(resolved.components.schemas.A.properties.name).toEqual({ type: "string" });
     expect(resolved.components.schemas.B.properties.name).toEqual({ type: "string" });
