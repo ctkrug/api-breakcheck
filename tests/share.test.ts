@@ -2,6 +2,24 @@ import { describe, expect, it } from "vitest";
 import { decodeShare, encodeShare } from "../src/share";
 
 describe("share link codec", () => {
+  it("round-trips unicode through the Buffer fallback when btoa/atob are absent", () => {
+    // jsdom/happy-dom/Node all provide btoa/atob, so the primary path never
+    // exercises the Buffer-based fallback meant for non-browser environments.
+    const originalBtoa = globalThis.btoa;
+    const originalAtob = globalThis.atob;
+    // @ts-expect-error simulating an environment without the Web API
+    delete globalThis.btoa;
+    // @ts-expect-error simulating an environment without the Web API
+    delete globalThis.atob;
+    try {
+      const payload = { old: "café: ✓ 你好", next: "emoji: 🚀" };
+      expect(decodeShare(encodeShare(payload))).toEqual(payload);
+    } finally {
+      globalThis.btoa = originalBtoa;
+      globalThis.atob = originalAtob;
+    }
+  });
+
   it("round-trips a payload through encode/decode", () => {
     const payload = { old: "openapi: 3.0.0", next: "openapi: 3.1.0" };
     const decoded = decodeShare(encodeShare(payload));
