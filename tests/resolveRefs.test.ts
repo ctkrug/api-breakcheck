@@ -77,6 +77,25 @@ describe("resolveRefs", () => {
     expect(() => resolveRefs(doc)).not.toThrow();
   });
 
+  it("resolves $refs inside an object reused at two locations (YAML alias)", () => {
+    // A YAML anchor/alias (`schema: &Shared {...}` ... `schema: *Shared`) hands
+    // the parser the SAME object reference at two document locations. That must
+    // not be mistaken for a true cycle: both locations need their nested $refs
+    // resolved independently.
+    const shared = {
+      type: "object",
+      properties: { name: { $ref: "#/components/schemas/Name" } },
+    };
+    const doc = {
+      components: { schemas: { Name: { type: "string" }, A: shared, B: shared } },
+    };
+    const resolved = resolveRefs(doc) as unknown as {
+      components: { schemas: { A: { properties: { name: unknown } }; B: { properties: { name: unknown } } } };
+    };
+    expect(resolved.components.schemas.A.properties.name).toEqual({ type: "string" });
+    expect(resolved.components.schemas.B.properties.name).toEqual({ type: "string" });
+  });
+
   it("resolves a local $ref whose target is a falsy value", () => {
     const doc = {
       components: { schemas: { Zero: 0 } },
