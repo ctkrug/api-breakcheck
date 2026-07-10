@@ -35,6 +35,21 @@ describe("createInputPane", () => {
     expect(pane.getText()).toBe("existing"); // untouched
   });
 
+  it("shows a pane-scoped error when the FileReader itself fails", () => {
+    const pane = makePane();
+    const spy = vi.spyOn(FileReader.prototype, "readAsText").mockImplementation(function (
+      this: FileReader,
+    ) {
+      this.onerror?.(new ProgressEvent("error") as ProgressEvent<FileReader>);
+    });
+    drop(pane.root, new File(["x"], "spec.json"));
+
+    const err = pane.root.querySelector(".pane__error") as HTMLElement;
+    expect(err.hidden).toBe(false);
+    expect(err.textContent).toContain("couldn't read");
+    spy.mockRestore();
+  });
+
   it("toggles a drag-affordance class on dragover/dragleave", () => {
     const pane = makePane();
     pane.root.dispatchEvent(new Event("dragover", { bubbles: true, cancelable: true }));
