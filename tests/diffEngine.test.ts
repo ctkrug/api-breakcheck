@@ -58,4 +58,15 @@ describe("diffSpecs", () => {
     expect(() => diffSpecs(a, b)).not.toThrow();
     expect(() => diffSpecs(b, a)).not.toThrow();
   });
+
+  it("treats a document whose paths is null/scalar as having no paths", () => {
+    // validateOpenApi rejects this before diffSpecs runs in the real app, but
+    // diffSpecs is a standalone pure function and must degrade, not crash.
+    const malformed = { openapi: "3.0.0", paths: null };
+    expect(() => diffSpecs(malformed, base)).not.toThrow();
+    const result = diffSpecs(malformed, base);
+    // Every path in `base` reads as newly-added against an empty path set.
+    expect(result.safeCount).toBe(Object.keys(base.paths).length);
+    expect(result.breakingCount).toBe(0);
+  });
 });
