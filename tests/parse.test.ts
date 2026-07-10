@@ -37,4 +37,16 @@ describe("parseSpec", () => {
   it("never throws on arbitrary garbage input", () => {
     expect(() => parseSpec("}{ this is not valid : : :")).not.toThrow();
   });
+
+  it("rejects pathologically deep flow nesting instead of blowing the call stack", () => {
+    let schema = '{"type":"string"}';
+    for (let i = 0; i < 2000; i += 1) {
+      schema = `{"type":"object","properties":{"nested":${schema}}}`;
+    }
+    const start = performance.now();
+    const result = parseSpec(schema);
+    expect(performance.now() - start).toBeLessThan(1000);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.message).toMatch(/nested too deep/i);
+  });
 });
