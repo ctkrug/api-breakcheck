@@ -104,4 +104,41 @@ describe("app behaviors", () => {
     runExample(app);
     expect(document.activeElement).toBe(byText(app, "Edit specs"));
   });
+
+  it("survives a rapid double-click on Compare without duplicating the tree", async () => {
+    const app = await mountApp();
+    const textareas = app.querySelectorAll("textarea");
+    (textareas[0] as HTMLTextAreaElement).value = EXAMPLE_OLD;
+    (textareas[1] as HTMLTextAreaElement).value = EXAMPLE_NEW;
+    const compareBtn = byText(app, "Compare");
+    compareBtn.click();
+    compareBtn.click();
+
+    const breakingBefore = app.querySelector(".rail__num--breaking")?.textContent;
+    expect(app.querySelectorAll(".tree").length).toBe(1);
+    expect(Number(breakingBefore)).toBeGreaterThan(0);
+  });
+
+  it("shows pane errors instead of a blank tree when both panes are empty", async () => {
+    const app = await mountApp();
+    byText(app, "Compare").click();
+    const errors = [...app.querySelectorAll(".pane__error")].filter(
+      (e) => !(e as HTMLElement).hidden,
+    );
+    expect(errors.length).toBe(2);
+    expect(app.querySelector(".results")?.hasAttribute("hidden")).toBe(true);
+  });
+
+  it("stays correct across many edit/compare round-trips (no leaked state)", async () => {
+    const app = await mountApp();
+    for (let i = 0; i < 10; i += 1) {
+      runExample(app);
+      byText(app, "Edit specs").click();
+      byText(app, "Clear").click();
+    }
+    runExample(app);
+    expect(app.querySelectorAll(".tree").length).toBe(1);
+    expect(app.querySelectorAll(".toast-host .toast").length).toBe(0);
+    expect(Number(app.querySelector(".rail__num--breaking")?.textContent)).toBeGreaterThan(0);
+  });
 });
