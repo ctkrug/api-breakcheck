@@ -58,6 +58,27 @@ describe("app wow moment", () => {
     expect(app.querySelector(".results")?.hasAttribute("hidden")).toBe(true);
   });
 
+  it("shows a friendly error instead of crashing on a pathologically deep schema", async () => {
+    const app = await mountApp();
+    let schema = '{"type":"string"}';
+    for (let i = 0; i < 4000; i += 1) {
+      schema = `{"type":"object","properties":{"nested":${schema}}}`;
+    }
+    const spec =
+      `{"openapi":"3.0.0","paths":{"/x":{"get":{"responses":{"200":` +
+      `{"content":{"application/json":{"schema":${schema}}}}}}}}}`;
+    const textareas = app.querySelectorAll("textarea");
+    (textareas[0] as HTMLTextAreaElement).value = spec;
+    (textareas[1] as HTMLTextAreaElement).value = spec;
+    [...app.querySelectorAll("button")].find((b) => b.textContent === "Compare")!.click();
+
+    const errors = [...app.querySelectorAll(".pane__error")].filter(
+      (e) => !(e as HTMLElement).hidden,
+    );
+    expect(errors.length).toBeGreaterThan(0);
+    expect(app.querySelector(".results")?.hasAttribute("hidden")).toBe(true);
+  });
+
   it("rejects a well-formed non-OpenAPI document with a clear message", async () => {
     const app = await mountApp();
     const textareas = app.querySelectorAll("textarea");
