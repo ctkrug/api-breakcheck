@@ -5,15 +5,20 @@
     <base href="./" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light" />
-    <title>API Breakcheck — instant OpenAPI breaking-change diff</title>
+    <title>Redline: catch breaking API changes before you merge</title>
     <meta
       name="description"
-      content="Paste two OpenAPI specs, get an instant red/green breaking-change diff tree. No CLI, no config, nothing leaves your browser."
+      content="Paste two OpenAPI specs and see which changes break your clients, marked red or green with a one-line reason. Runs in your browser, no CLI or config."
     />
-    <!-- Blueprint monogram favicon, generated inline (no default globe). -->
+    <meta property="og:title" content="Redline: catch breaking API changes before you merge" />
+    <meta
+      property="og:description"
+      content="Paste two OpenAPI specs and see which changes break your clients, marked red or green with a one-line reason. Runs in your browser, no CLI or config."
+    />
+    <!-- Blueprint favicon: a drafting-paper square struck by a red line (no default globe). -->
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B2B3C'/%3E%3Cpath d='M6 6v20M6 6h11M6 16h9M6 26h11' fill='none' stroke='%230F6FA3' stroke-width='2.4' stroke-linecap='square'/%3E%3Ccircle cx='24' cy='11' r='2.6' fill='%232E8B57'/%3E%3Ccircle cx='24' cy='22' r='2.6' fill='%23C23B3B'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%230B2B3C'/%3E%3Cpath d='M7 8h18M7 15h18M7 22h18' fill='none' stroke='%230F6FA3' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M5 26 27 6' fill='none' stroke='%23B03636' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,6 +30,6 @@
   </head>
   <body>
     <div id="app"></div>
-    <noscript>API Breakcheck runs entirely in your browser and needs JavaScript enabled.</noscript>
+    <noscript>Redline runs entirely in your browser and needs JavaScript enabled.</noscript>
   </body>
 </html>
