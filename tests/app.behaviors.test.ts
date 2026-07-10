@@ -105,6 +105,15 @@ describe("app behaviors", () => {
     expect(document.activeElement).toBe(byText(app, "Edit specs"));
   });
 
+  it("summarizes identical specs as no differences in the collapsed strip", async () => {
+    const app = await mountApp();
+    const textareas = app.querySelectorAll("textarea");
+    (textareas[0] as HTMLTextAreaElement).value = EXAMPLE_OLD;
+    (textareas[1] as HTMLTextAreaElement).value = EXAMPLE_OLD;
+    byText(app, "Compare").click();
+    expect(app.querySelector(".io__strip-text")?.textContent).toMatch(/no differences/i);
+  });
+
   it("survives a rapid double-click on Compare without duplicating the tree", async () => {
     const app = await mountApp();
     const textareas = app.querySelectorAll("textarea");
