@@ -76,6 +76,15 @@ describe("diffOperation — parameter transitions", () => {
     );
     expect(nodes).toEqual([]); // no meaningful change once junk is filtered
   });
+
+  it("ignores a malformed parameter object missing name or in", () => {
+    const nodes = diffOperation(
+      { parameters: [{ in: "query", schema: { type: "string" } }, param({ required: false })] },
+      { parameters: [{ name: "q" }, param({ required: false })] },
+      "/paths/x/get",
+    );
+    expect(nodes).toEqual([]); // no meaningful change once the malformed entries are filtered
+  });
 });
 
 describe("diffOperation — request body media types", () => {
