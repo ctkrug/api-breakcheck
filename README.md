@@ -40,6 +40,7 @@ Redline skips all of that. Paste the old spec, paste the new spec, read the tree
   Every verdict traces to a single named rule in [`src/diff/compat.ts`](src/diff/compat.ts), so the
   reasoning behind "breaking" vs "safe" is auditable, not a heuristic. See
   [`docs/VISION.md`](docs/VISION.md) for the full rule set.
+
 - Renders a collapsible red/green tree with a plain-English reason on every leaf, a breaking-only
   filter, a shareable link (the comparison is encoded in the URL, not a server session), and a
   Markdown export for pasting into a PR.
