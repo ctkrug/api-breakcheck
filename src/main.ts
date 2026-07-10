@@ -96,11 +96,16 @@ function main(root: HTMLElement): void {
     "Clear",
   );
 
+  const editSpecsBtn = h(
+    "button",
+    { type: "button", class: "btn btn--ghost", onclick: editSpecs },
+    "Edit specs",
+  );
   const strip = h(
     "div",
     { class: "io__strip" },
     h("span", { class: "io__strip-text mono" }, "comparing old ↦ new"),
-    h("button", { type: "button", class: "btn btn--ghost", onclick: editSpecs }, "Edit specs"),
+    editSpecsBtn,
   );
 
   const io = h(
@@ -143,8 +148,12 @@ function main(root: HTMLElement): void {
     state.result = result;
     state.collapsed = true;
     renderResults();
+    // Compare/Load-example/Ctrl+Enter all fire from a control this collapse is
+    // about to hide, which drops focus to <body> and corrupts subsequent Tab
+    // order in Chromium. Move focus to the strip's own control explicitly.
     io.classList.add("io--collapsed");
     results.hidden = false;
+    editSpecsBtn.focus();
     strip.querySelector(".io__strip-text")!.textContent = summaryLine(state.result);
     results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
